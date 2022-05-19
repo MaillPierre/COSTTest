@@ -1,0 +1,171 @@
+# Class partitions
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX earl: <http://www.w3.org/ns/earl#>
+PREFIX kgi: <http://ns.inria.fr/kg/index#>
+PREFIX void: <http://rdfs.org/ns/void#>
+CONSTRUCT {
+    ?datasetDescription void:classPartition ?classPartition .
+    ?classPartition void:class ?c .
+}
+WHERE {
+    { ?s a ?c . }
+    BIND(Iri(CONCAT(str(kgi:), MD5(str(kgi:datasetDescription)), MD5(str(?c)))) AS ?classPartition)
+}
+
+# Class population
+
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX earl: <http://www.w3.org/ns/earl#>
+PREFIX kgi: <http://ns.inria.fr/kg/index#>
+CONSTRUCT {
+    kgi:datasetDescription void:classPartition [
+            void:class ?class ;
+            void:entities ?count
+        ] .
+}
+WHERE {
+    { SELECT ?class (count(?instance) AS ?count)
+    WHERE {
+        SELECT DISTINCT ?class ?instance $FROM
+        WHERE {
+            ?instance a ?class
+        }
+    } GROUP BY ?class }
+    BIND(Iri(CONCAT(str(kgi:), MD5(str(kgi:datasetDescription)), MD5(str(?c)))) AS ?classPartition)
+}
+
+# Class triples
+
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX kgi: <http://ns.inria.fr/kg/index#>
+CONSTRUCT {
+    kgi:datasetDescription void:classPartition ?classPartition .
+    ?classPartition void:class ?c ;
+        void:triples ?x .
+}
+WHERE {
+    { SELECT (COUNT(?p) AS ?x) ?c WHERE { ?s a ?c ; ?p ?o } GROUP BY ?c }
+    BIND(Iri(CONCAT(str(kgi:), MD5(str(kgi:datasetDescription)), MD5(str(?c)))) AS ?classPartition)
+}
+
+# Classes used conjointly with another
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX earl: <http://www.w3.org/ns/earl#>
+PREFIX kgi: <http://ns.inria.fr/kg/index#>
+PREFIX void: <http://rdfs.org/ns/void#>
+CONSTRUCT {
+    kgi:datasetDescription void:classPartition ?classPartition .
+    ?classPartition void:class ?c ;
+            void:classes ?x .
+}
+WHERE {
+    { SELECT (COUNT(DISTINCT ?d) AS ?x) ?c WHERE { ?s a ?c , ?d } GROUP BY ?c }
+    BIND(Iri(CONCAT(str(kgi:), MD5(str(kgi:datasetDescription)), MD5(str(?c)))) AS ?classPartition)
+}
+
+# Number of properties use with a class
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX earl: <http://www.w3.org/ns/earl#>
+PREFIX kgi: <http://ns.inria.fr/kg/index#>
+PREFIX void: <http://rdfs.org/ns/void#>
+CONSTRUCT {
+    kgi:datasetDescription void:classPartition ?classPartition .
+    ?classPartition void:class ?c ;
+        void:properties ?x .
+}
+WHERE {
+    { SELECT (COUNT(DISTINCT ?p) AS ?x) ?c WHERE { ?s a ?c ; ?p ?o } GROUP BY ?c }
+    BIND(Iri(CONCAT(str(kgi:), MD5(str(kgi:datasetDescription)), MD5(str(?c)))) AS ?classPartition)
+}
+
+# Distinct subjects used with a class
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX earl: <http://www.w3.org/ns/earl#>
+PREFIX kgi: <http://ns.inria.fr/kg/index#>
+PREFIX void: <http://rdfs.org/ns/void#>
+CONSTRUCT {
+    kgi:datasetDescription void:classPartition ?classPartition .
+    ?classPartition void:class ?c ;
+        void:distinctSubjects ?x .
+}
+WHERE {
+    { SELECT (COUNT(DISTINCT ?s) AS ?x) ?c WHERE { ?s a ?c } GROUP BY ?c }
+    BIND(Iri(CONCAT(str(kgi:), MD5(str(kgi:datasetDescription)), MD5(str(?c)))) AS ?classPartition)
+}
+
+# Distinct objects used with a class
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX earl: <http://www.w3.org/ns/earl#>
+PREFIX kgi: <http://ns.inria.fr/kg/index#>
+PREFIX void: <http://rdfs.org/ns/void#>
+CONSTRUCT {
+    kgi:datasetDescription void:classPartition ?classPartition .
+    ?classPartition void:class ?c ;
+        void:distinctObjects ?x .
+}
+WHERE {
+    { SELECT (COUNT(DISTINCT ?o) AS ?x) ?c WHERE { ?s a ?c ; ?p ?o } GROUP BY ?c }
+    BIND(Iri(CONCAT(str(kgi:), MD5(str(kgi:datasetDescription)), MD5(str(?c)))) AS ?classPartition)
+}
+
+# Properties used with a class
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX earl: <http://www.w3.org/ns/earl#>
+PREFIX kgi: <http://ns.inria.fr/kg/index#>
+PREFIX void: <http://rdfs.org/ns/void#>
+CONSTRUCT {
+    ?datasetDescription void:classPartition ?classPartition .
+    ?classPartition void:class ?c ;
+        void:propertyPartition ?classPropertyPartition .
+    ?classPropertyPartition void:property ?p ;
+        void:triples ?x .
+}
+WHERE {
+    { SELECT (COUNT(?o) AS ?x) ?p WHERE { ?s a ?c ; ?p ?o } GROUP BY ?c ?p }
+    BIND(Iri(CONCAT(str(kgi:), MD5(str(kgi:datasetDescription)), MD5(str(?c)))) AS ?classPartition)
+    BIND(Iri(CONCAT(str(kgi:), MD5(str(kgi:datasetDescription)), MD5(str(?c)), MD5(str(?p)))) AS ?classPropertyPartition)
+}
+
+# Properties used with a class and the number of triples they represent
+
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX earl: <http://www.w3.org/ns/earl#>
+PREFIX kgi: <http://ns.inria.fr/kg/index#>
+PREFIX void: <http://rdfs.org/ns/void#>
+CONSTRUCT {
+    ?datasetDescription void:classPartition ?classPartition .
+    ?classPartition void:class ?c ;
+        void:propertyPartition ?classPropertyPartition .
+    ?classPropertyPartition void:property ?p .
+}
+WHERE {
+    { SELECT (COUNT(?o) AS ?x) ?p WHERE { ?s a ?c ; ?p ?o } GROUP BY ?c ?p }
+    BIND(Iri(CONCAT(str(kgi:), MD5(str(kgi:datasetDescription)), MD5(str(?c)))) AS ?classPartition)
+    BIND(Iri(CONCAT(str(kgi:), MD5(str(kgi:datasetDescription)), MD5(str(?c)), MD5(str(?p)))) AS ?classPropertyPartition)
+}
+
+# Distinct subjects in the base overall
+
+PREFIX voidex: <http://ldf.fi/void-ext#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX kgi: <http://ns.inria.fr/kg/index#>
+CONSTRUCT {
+    kgi:datasetDescription voidex:distinctRDFNodes ?x .
+}
+WHERE {
+    {
+        SELECT (COUNT(DISTINCT ?s ) AS ?x) {
+            ?s ?p ?o
+            FILTER(isIri(?s))
+        }
+    }
+}
