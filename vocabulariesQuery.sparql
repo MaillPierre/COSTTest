@@ -1,0 +1,12 @@
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX earl: <http://www.w3.org/ns/earl#>
+PREFIX kgi: <http://ns.inria.fr/kg/index#>
+SELECT DISTINCT ?ns {
+                {
+                    SELECT DISTINCT ?elem {
+                    ?s ?elem ?o .
+                    }
+                }
+                BIND(IRI(REPLACE( str(?elem), "(#|/)[^#/]*$", "$1")) AS ?ns) .
+            }
